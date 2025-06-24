@@ -8,7 +8,11 @@
 **Primary Value**: Comprehensive, scientifically-accurate species profiles for aquarium fish  
 **Key Example**: https://www.seriouslyfish.com/species/gymnochanda-verae
 
-## Technical Architecture
+---
+
+# PART I: TECHNICAL ARCHITECTURE
+
+## Technology Stack
 
 ### Core Stack
 - **Framework**: React Router v7 (full-stack React framework)
@@ -24,7 +28,7 @@
 - **Database**: Local PostgreSQL via Docker for development/testing
 - **Authentication**: Local Supabase auth simulation
 
-### Deployment Pipeline
+### Deployment & CI/CD
 - **CI/CD**: GitHub Actions (following tt-reviews patterns)
 - **Environments**: 
   - Development (auto-deploy from main branch)
@@ -34,11 +38,7 @@
   - Development deployments → Discord "deployment" channel
   - Production releases → Discord "changelog" channel
 
-### Monitoring & Logging
-- **Primary logging**: Cloudflare logs and analytics
-- **Application logging**: Robust logging system across frontend and API components
-- **Alerting**: Discord-based alerts for errors and system issues (free solution)
-- **Performance monitoring**: Cloudflare Workers analytics and metrics
+## Performance & Caching
 
 ### Caching Strategy
 - **Cloudflare Workers caching**: API response caching with content-type specific configurations
@@ -50,6 +50,14 @@
 - **Image caching**: Cloudflare R2 + CDN automatic caching
 - **Database optimization**: Read-heavy query patterns with appropriate indexing
 
+### Performance Requirements
+- **Global accessibility**: Sub-3-second load times worldwide
+- **Image optimization**: Progressive loading and format selection
+- **Search responsiveness**: <200ms response time for real-time UX
+- **Core Web Vitals**: <2.5s LCP, <100ms FID, <0.1 CLS targets
+
+## Data Validation & Testing
+
 ### Form Validation & Data Integrity
 - **Schema validation**: Zod for TypeScript-first validation
 - **Validation layers**: 
@@ -59,13 +67,54 @@
 - **Scientific data validation**: Custom validators for taxonomic names, measurements, citations
 - **Rich text validation**: Content sanitization and citation format validation
 
-### Architecture Benefits
-- **Type-safe full-stack development**
-- **Server-side rendering for SEO**
-- **Global edge deployment via Cloudflare**
-- **Unified deployment** (frontend, backend, API in single Worker)
-- **Modern React patterns** with proper component composition
-- **Strong local development environment** mirroring production
+### Testing Strategy
+**Minimal Smoke Testing**: Fail-fast approach focused on preventing site crashes
+- **Framework**: Vitest for fast, TypeScript-friendly testing
+- **Execution**: CI-based testing with manual pre-commit workflow
+- **Seed Data**: Use migrated species profiles from MySQL database for test scenarios
+
+**Core Workflow Tests**:
+1. **Homepage loads** without errors
+2. **Species profile page** renders (using migrated seed data)
+3. **User authentication** flow works (login/logout)
+4. **Search bar** returns results for basic queries
+5. **Content submission form** renders and accepts input
+
+**Implementation**:
+- **Fail-fast**: Stop on first test failure for quick feedback
+- **CI integration**: Block deployments on test failures
+- **Personal workflow**: Run tests before pushing changes
+- **Future enhancement**: Move to pre-commit hooks during alpha/beta stages
+
+## Monitoring & Operations
+
+### Monitoring & Logging
+- **Primary logging**: Cloudflare logs and analytics
+- **Application logging**: Robust logging system across frontend and API components
+- **Alerting**: Discord-based alerts for errors and system issues (free solution)
+- **Performance monitoring**: Cloudflare Workers analytics and metrics
+
+### Configuration Management
+- **Environment Variables**: Following tt-reviews patterns:
+  - Development: `.dev.vars` file (not committed)
+  - Configuration: `wrangler.toml` file (committed)
+  - Production: `npx wrangler secret put` command for sensitive data
+- **Site Settings**: Admin-configurable site-wide settings
+
+### Error Handling & User Experience
+- **Consistent Messaging**: Uniform error and success notifications across site (modal or styled components)
+- **Error Pages**: Custom 404 page and generic error page for all other errors
+- **Image Upload UX**: Progress indicators for large image uploads (up to 6MB)
+- **User Feedback**: Clear success/failure messaging for all user actions
+
+### Support & Analytics
+- **User Support**: Link to Discord server for user assistance
+- **Analytics**: Google Analytics integration for site metrics
+- **Database Management**: Supabase handles backups and data management
+
+---
+
+# PART II: CONTENT & USER MANAGEMENT
 
 ## Content Strategy
 
@@ -132,6 +181,42 @@
 - **Citation Formatter**: Scientific citation formatting and management
 - **Scientific Notation**: Automatic italicization of scientific names
 
+### Content Workflow & Management
+
+#### Content States & Workflow
+**Admin Users**:
+- **Draft** → **Live** (direct publishing capability)
+
+**Non-Admin Users**:
+- **Draft** → **Submitted** → **Processing** (glossary/validation) → **Discord Notification** → **Approved/Rejected**
+- **Rejection Handling**: Explanations visible in user profile area
+- **Re-submission**: Users can edit rejected content and re-submit
+- **Review Process**: Trusted Discord reviewers approve/reject via bot interactions
+
+#### Content Versioning & History
+**Admin Versioning**: 
+- Keep last 2-3 versions of all content for data recovery purposes
+- Admin interface shows version history with restore capability
+- Track editor, timestamp, and change summary for each version
+
+**Public Change History**:
+- Frontend-visible timeline for significant changes (e.g., taxonomic reclassification)
+- Display when species information was updated and why
+- Historical context for scientific accuracy and transparency
+
+#### Content Archiving
+- **Archive State**: Admin-controlled archiving for outdated or deprecated content
+- **Archived Content Display**: Archived routes remain accessible with message: "This content has been archived. If you think this is a mistake, contact us on Discord"
+- **Version Access**: Historical versions only available to admins for recovery purposes, not public frontend
+
+#### Content Standards & Validation
+- **Required Fields**: Species profiles cannot be submitted without essential data (e.g., max length)
+- **Fixed Format**: Species profiles follow consistent structure and required sections
+- **Single Editor**: One person per submission, no collaborative editing
+- **No Bulk Operations**: Individual content management initially
+- **No Content Scheduling**: Manual publishing workflow only
+- **No Templates**: Standard required fields enforce consistency without pre-filled forms
+
 ### Glossary Integration & Background Processing
 **Auto-Glossary Linking**: Automatic linking of glossary terms within content
 - **Database**: Glossary terms stored with aliases and case-sensitivity flags
@@ -149,17 +234,6 @@
 - **Notifications**: Discord alerts for processing completion and failures
 - **Throughput**: Sufficient for content submission volumes (~400 jobs/second capacity)
 
-### Content Versioning & History
-**Admin Versioning**: 
-- Keep last 2-3 versions of all content for data recovery purposes
-- Admin interface shows version history with restore capability
-- Track editor, timestamp, and change summary for each version
-
-**Public Change History**:
-- Frontend-visible timeline for significant changes (e.g., taxonomic reclassification)
-- Display when species information was updated and why
-- Historical context for scientific accuracy and transparency
-
 ### Taxonomic Hierarchy & Navigation
 **Hierarchical Structure**: Class → Order → Family → Genus → Species
 - **Navigation**: Browse species by taxonomic classification
@@ -167,15 +241,11 @@
 - **Knowledge Base**: Homepage integration serving as main navigation hub (replacing current knowledge-base page)
 - **Search Integration**: Filter by taxonomic levels
 
-### Content Moderation Workflow
-**Admin Users**:
-- **Draft** → **Live** (direct publishing capability)
-
-**Non-Admin Users**:
-- **Draft** → **Submitted** → **Processing** (glossary/validation) → **Discord Notification** → **Approved/Rejected**
-- **Rejection Handling**: Explanations visible in user profile area
-- **Re-submission**: Users can edit rejected content and re-submit
-- **Review Process**: Trusted Discord reviewers approve/reject via bot interactions
+### Content Quality Standards
+- **Scientific accuracy**: All information must be verifiable
+- **Citation requirements**: References must be provided for scientific claims
+- **Image standards**: High-quality photos with descriptive captions
+- **Editorial review**: Content moderation via Discord integration
 
 ### Multilingual Architecture
 **Day 1 Implementation**:
@@ -184,15 +254,9 @@
 - **Future-Ready**: Architecture supports adding translated versions later
 - **No Active Translation**: Feature dormant but database-supported
 
-### Content Quality Standards
-- **Scientific accuracy**: All information must be verifiable
-- **Citation requirements**: References must be provided for scientific claims
-- **Image standards**: High-quality photos with descriptive captions
-- **Editorial review**: Content moderation via Discord integration
+## User Management & Authentication
 
-## User Roles & Authentication
-
-### Application Roles
+### User Roles & Permissions
 1. **Visitors** (Not logged in)
    - Read-only access to published content
    - Basic search functionality
@@ -216,162 +280,336 @@
    - Site configuration and database management
    - Manage all content regardless of author
 
-### Discord Integration
+### User Experience & Profile Management
+**User Profile Page** (Verified Users):
+- **Submission History**: All submissions with current status (Draft, Submitted, Processing, Approved, Rejected)
+- **User Preferences**: Configurable display options (cm vs inches, Celsius vs Fahrenheit)
+- **Account Management**: Password reset and change functionality
+
+**Notification System**:
+- **Email Notifications**: Content approval/rejection status (using designated Gmail account)
+- **In-App Notifications**: Unread notification icon on profile button
+- **Notification Clearing**: Icon disappears when user visits profile page
+
+**Community Guidelines**:
+- **Admin-Configurable**: Guidelines configurable per content type (species profiles, articles, blogs)
+- **Submission Context**: Guidelines displayed during content creation process
+- **Moderation Reference**: Available to moderators during review process
+
+### Security & Access Control
+**File Upload Security**:
+- **Supported Formats**: JPEG, PNG, WebP only
+- **File Size Limit**: 6MB maximum per upload
+- **Basic Validation**: File header checking and content-type validation to prevent malicious files
+- **Malware Scanning**: VirusTotal API integration during background processing
+
+**Session & Access Control**:
+- **Session Management**: Supabase production environment defaults
+- **Authentication**: Standard password requirements and secure session handling
+- **Rate Limiting**: Cloudflare protection initially, expandable for future needs
+
+**Additional Security**:
+- **Content integrity**: Protection against malicious submissions
+- **User data protection**: GDPR-compliant user management
+- **Role-based access**: Secure permission boundaries
+- **Input validation**: XSS and injection prevention
+
+---
+
+# PART III: FEATURES & FUNCTIONALITY
+
+## Search & Discovery
+
+### 1. Search Bar (Primary Search)
+**Purpose**: Real-time fish name search with categorized results
+
+**Functionality**:
+- **Target**: Fish names (scientific names, common names, family, genus, species)
+- **Real-time**: Results appear after ~0.5 second delay as user types
+- **Dropdown Results**: Categorized display with headings:
+  - "Species Profiles" - Top N matching species
+  - "Articles" - Content mentioning search terms
+  - "Glossary" - Relevant glossary definitions
+- **Shareable Results**: Enter key navigates to `/search/[query]` for linkable results
+
+**Technical Implementation**:
+- **Primary**: PostgreSQL full-text search with trigram matching
+- **Caching**: Aggressive caching of popular search terms
+- **Performance**: <200ms response time for real-time UX
+
+### 2. Fish Finder (Advanced Filtering)
+**Purpose**: Find species by characteristics and care requirements
+
+**Functionality**:
+- **Filtering Options**: Habitat, water conditions, tank size, geographic region, care level
+- **User Modes**: 
+  - **Beginner Mode**: Simplified filters with guidance
+  - **Expert Mode**: Complete filtering options with scientific parameters
+- **Progressive Development**: Start simple, enhance over time
+
+**Implementation**:
+- **Database**: Indexed species characteristics for fast filtering
+- **UI**: Filter-based interface with progressive disclosure
+- **Results**: Species list with key characteristics displayed
+
+### Technical Architecture
+- **Search Bar**: Real-time PostgreSQL queries with caching
+- **Fish Finder**: Structured database queries with indexed characteristics
+- **Fallback**: Algolia integration if native search proves insufficient
+- **Global Performance**: Cloudflare caching for popular searches
+
+## Image Management
+
+### Upload & Processing
+- **User Interface**: Standard drag & drop, copy & paste, file selection
+- **Required Metadata**: Caption, alt text, and singular attribution for each upload
+- **Immediate Display**: Images used "as is" provisionally upon upload
+- **Background Processing**: Background worker resizes images for various site requirements (thumbnails, galleries, etc.)
+
+### Image Types & Integration
+1. **Species Photos**
+   - Multiple angles and life stages
+   - Habitat photos
+   - Behavioral documentation
+   - **Gallery Integration**: Image galleries for species profiles
+   - **Separate from text**: Images managed independently of rich text content
+
+2. **Article Images**
+   - Scientific illustrations
+   - Conservation photography
+   - Research documentation
+   - **Rich Text Integration**: Embedded directly in Tiptap editor for articles
+
+### Content Moderation
+- **Non-admin uploads**: Follow same moderation workflow as other content
+- **Admin uploads**: Direct publication capability
+- **Review process**: Images reviewed alongside content submissions via Discord
+
+### Technical Implementation
+- **Storage**: Cloudflare R2 for global CDN performance with built-in backup
+- **Processing**: Background worker handles resizing for thumbnails, gallery views, responsive sizes
+- **Security Validation**: VirusTotal API scanning during background processing to avoid upload latency
+- **Formats**: JPEG, PNG, WebP support with automatic format optimization
+- **Organization**: Structured folder hierarchy by content type
+- **Accessibility**: Required alt text for screen reader compatibility
+
+## Mobile-First Design Strategy
+**Design Philosophy**: Frontend mobile-first, backend desktop-first approach
+- **70% mobile traffic**: Prioritize mobile browsing experience for visitors
+- **Desktop content creation**: Complex submissions and admin tasks optimized for desktop
+
+**Frontend - Mobile-First** (Visitors & Browsing):
+- **Species Profile Browsing**: Large hero images, swipeable galleries, quick facts cards
+- **Collapsible Sections**: Expandable care details, habitat information, breeding notes
+- **Navigation**: Hamburger menu design for main site navigation
+- **Search & Discovery**: Prominent search bar, simplified Fish Finder filtering
+- **Taxonomic Browsing**: Touch-friendly family/genus navigation
+- **User Profiles**: Mobile-optimized submission status and preference management
+
+**Backend - Desktop-First** (Content Creation & Administration):
+- **Rich Content Creation**: Full Tiptap editor with scientific citations and complex formatting
+- **Complex Forms**: Detailed species profiles with multiple data fields and validation
+- **Admin Interfaces**: User management, content moderation, and site configuration
+- **Advanced Image Management**: Multiple uploads, gallery organization, detailed metadata entry
+
+**Mobile Upload Support**:
+- **Basic Image Upload**: Simple camera/gallery access for mobile users
+- **Essential Metadata**: Caption and alt text entry optimized for mobile
+- **Progress Indicators**: Clear feedback for larger image uploads (up to 6MB)
+
+---
+
+# PART IV: INTEGRATIONS & MIGRATION
+
+## Discord Community Integration
+
+### Architecture
+- **Discord Bot Integration**: Custom bot integrated with Cloudflare Worker
+- **Unified worker integration**: Discord webhooks and bot interactions within existing Worker
+- **App-controlled role management**: Application manages Discord role assignments
+- **Multi-channel notifications**: Separate channels for different notification types
+
+### Key Features
+1. **Content Submission Notifications**
+   - New submissions posted to moderation channel after glossary processing
+   - Quick approve/reject actions via Discord bot interactions
+   - Single moderator approval system
+   - Automated database updates from Discord actions
+
+2. **Deployment Notifications**
+   - Development deployments → "deployment" channel for testing
+   - Production releases → "changelog" channel for community updates
+   - Webhook integration with GitHub Actions pipeline
+
+3. **System Monitoring & Alerts**
+   - Error alerts and system issues posted to designated channel
+   - Background job notifications (glossary processing completion/failures)
+   - Free Discord-based alerting solution for application monitoring
+
+4. **Role Management**
+   - App-driven role assignment: Admin promotes user → App requests Discord ID → Bot assigns role
+   - Simplified role structure: Moderator and Admin roles only
+   - No complex role syncing, application controls Discord permissions
+
+### Discord Integration (User Roles)
 **Discord Roles**: Moderator and Admin roles only
 - **Role Assignment**: App-controlled promotion system
 - **Workflow**: Admin promotes user → App requests Discord ID → Discord bot assigns role
 - **Integration**: Discord roles used for submission review and approval process
 - **Simplified Architecture**: No complex role syncing, app-driven role management
 
-## Search Requirements
-
-### Critical Success Factors
-- **Accuracy**: Return legitimately relevant results
-- **Performance**: Fast response times for global users
-- **Comprehensiveness**: Search across all content types
-- **Advanced filtering**: By habitat, care requirements, geographic region, etc.
-
-### Search Capabilities
-1. **Species Search**
-   - Scientific names (exact and fuzzy matching)
-   - Common names
-   - Habitat characteristics
-   - Care requirements (temperature, pH, tank size)
-   - Geographic distribution
-
-2. **Content Search**
-   - Full-text search across articles
-   - Author-based filtering
-   - Date range filtering
-   - Category-specific searches
-
-### Technical Implementation
-- **Primary**: PostgreSQL full-text search with custom ranking
-- **Fallback**: Algolia integration if native search proves insufficient
-- **Performance**: Indexed search with caching strategies
-
-## Image Management
-
-### Critical Requirements
-- **Flawless functionality**: Images must load reliably worldwide
-- **Caption support**: All images require descriptive captions
-- **Multiple formats**: Support for JPEG, PNG, WebP
-- **Responsive delivery**: Optimized for various screen sizes
-
-### Image Types
-1. **Species Photos**
-   - Multiple angles and life stages
-   - Habitat photos
-   - Behavioral documentation
-
-2. **Article Images**
-   - Scientific illustrations
-   - Conservation photography
-   - Research documentation
-
-### Technical Implementation
-- **Storage**: Cloudflare R2 for global CDN performance
-- **Processing**: On-demand resizing and format optimization
-- **Organization**: Structured folder hierarchy by content type
-
 ## SEO & Migration Strategy
 
-### SEO Priorities
-1. **Preserve high-ranking content**: Maintain Google rankings for top-performing pages
-2. **URL strategy**: Selective reuse of existing routes vs. new structure
-3. **Redirect management**: Permanent redirects for changed URLs
-4. **Structured data**: Enhanced schema markup for species profiles
+### SEO Implementation
+**Structured Data/Schema Markup**:
+- **Species profiles**: Animal schema with scientific names, habitat, conservation status
+- **Articles**: Article schema with author, publication date, citations
+- **Rich snippets**: Enhanced Google search result display
 
-### Migration Approach
-1. **Content audit**: Export Google Search Console data to identify critical routes
-2. **Database migration**: MySQL to PostgreSQL with data integrity validation
-3. **URL mapping**: Strategic redirect plan for SEO preservation
-4. **Performance optimization**: Leverage Cloudflare edge caching
+**URL Structure & Redirects**:
+- **Current structure maintained**: `/species/[scientific-name]`, `/articles/[slug]`
+- **Historical name redirects**: 301 redirects from old scientific names to current classifications
+- **SEO value preservation**: 90-95% ranking transfer via proper redirects
+- **Taxonomic navigation**: `/family/[name]`, `/genus/[name]` for browsing
 
-## Discord Community Integration
+**Technical SEO**:
+- **Core Web Vitals optimization**: <2.5s LCP, <100ms FID, <0.1 CLS targets
+- **Mobile-first indexing**: Responsive design priority
+- **XML sitemaps**: Auto-generated for all content types
+- **Breadcrumb navigation**: Taxonomic hierarchy (Home > Family > Genus > Species)
 
-### Architecture
-- **Unified worker integration**: Discord webhooks within existing Cloudflare Worker
-- **Role-based permissions**: Discord server roles determine moderation capabilities
-- **Content moderation**: Submission review system via Discord channels
+**Content Optimization**:
+- **Title tags**: "Scientific Name (Common Name) - Care Guide | Seriously Fish"
+- **Meta descriptions**: Auto-generated from species data and care requirements
+- **Internal linking**: Taxonomic relationships, glossary integration, related species
+- **Historical context**: Display previous scientific names and reclassification dates
 
-### Key Features
-1. **Content Submission Notifications**
-   - New submissions posted to moderation channel
-   - Quick approve/reject actions via Discord interactions
+### Data Migration Strategy
 
-2. **Search Commands**
-   - `/species query:name` - Search species profiles
-   - `/content query:term` - Search articles and publications
-   - Role-restricted access for quality control
-
-3. **Moderation Workflow**
-   - Two-moderator approval system
-   - Submission tracking and accountability
-   - Automated database updates from Discord actions
-
-## Data Migration Strategy
-
-### MySQL Database Analysis
+#### MySQL Database Analysis
 - **Current database**: Available for containerized analysis
 - **Schema interpretation**: User guidance for complex relationships
 - **Data integrity**: Validation scripts for migration accuracy
 
-### Migration Phases
+#### Migration Approach
+1. **High-traffic route identification**: Focus on preserving top-performing species and articles
+2. **Database migration**: MySQL to PostgreSQL with data integrity validation
+3. **Redirect mapping**: Comprehensive 301 redirect plan for URL changes and taxonomic updates
+4. **Performance optimization**: Cloudflare edge caching and CDN implementation
+5. **SEO monitoring**: Track ranking changes and traffic patterns during migration
+
+#### Migration Phases
 1. **Schema mapping**: MySQL to PostgreSQL conversion
 2. **Content migration**: Species profiles, articles, media
 3. **User data**: Account information and roles
 4. **URL mapping**: Route preservation and redirect setup
 
+---
+
+# PART V: DEVELOPMENT PLANNING
+
 ## Development Phases
 
-### Phase 1: Foundation (MVP)
-- [ ] Database schema design and migration scripts
-- [ ] Basic species profile display
-- [ ] User authentication and roles
-- [ ] Image storage and display
-- [ ] Basic search functionality
+### Phase 1: Core Foundation (MVP)
+**Goal**: Basic functional website with content browsing and user management
 
-### Phase 2: Content Management
-- [ ] Admin interface for content management
-- [ ] Article-based content types
-- [ ] Enhanced species profile editing
-- [ ] Citation and reference system
-- [ ] SEO optimization and redirects
+**Database & Authentication**:
+- [ ] PostgreSQL schema design with multilingual support
+- [ ] MySQL to PostgreSQL migration scripts and data validation
+- [ ] User authentication system (Supabase Auth)
+- [ ] User role system (Visitor, Verified, Moderator, Admin)
+- [ ] Basic security measures and session management
 
-### Phase 3: Community Integration
-- [ ] Discord bot integration
-- [ ] Content submission workflow
-- [ ] Moderation system
-- [ ] Advanced search with filtering
-- [ ] Performance optimization
+**Content Display & Navigation**:
+- [ ] Species profile display with taxonomic hierarchy
+- [ ] Basic taxonomic navigation (family/genus browsing)
+- [ ] Homepage with knowledge base integration
+- [ ] Mobile-first responsive design implementation
+- [ ] Custom 404 and error pages
 
-### Phase 4: Advanced Features
-- [ ] Algolia search integration (if needed)
-- [ ] Advanced image management
-- [ ] Analytics and monitoring
-- [ ] Mobile optimization
+**Essential Features**:
+- [ ] Real-time search bar with categorized dropdown results
+- [ ] Basic form validation system (Zod schemas)
+- [ ] Image upload, storage (R2), and display with required metadata
+- [ ] Basic rich text editing (Tiptap) with three input types
+- [ ] Basic SEO implementation (meta tags, structured data)
+
+**Testing & Deployment**:
+- [ ] Minimal smoke testing setup (Vitest)
+- [ ] Basic deployment pipeline (GitHub Actions)
+- [ ] Development environment configuration
+
+### Phase 2: Content Management & Workflow
+**Goal**: Complete content creation, editing, and moderation workflow
+
+**Content Management**:
+- [ ] Admin interface for comprehensive content management
+- [ ] Content submission workflow (Draft → Submitted → Processing → Review)
+- [ ] Content versioning system (admin versions + public change history)
+- [ ] Required field validation for species profiles
+- [ ] Content archiving system with frontend display
+- [ ] Article-based content types with full rich text editing
+
+**Rich Text & Processing**:
+- [ ] Complete Tiptap integration with custom extensions
+- [ ] SF Species/Article search and linking extension
+- [ ] Citation formatter and scientific notation support
+- [ ] Glossary integration and auto-linking
+- [ ] Background job processing (Durable Objects) for glossary terms
+- [ ] Image galleries for species profiles
+
+**Moderation & Notifications**:
+- [ ] User profile pages with submission history and preferences
+- [ ] Email notification system for content status updates
+- [ ] In-app notification system with unread indicators
+- [ ] Community guidelines system (admin-configurable per content type)
+- [ ] Content moderation workflow with rejection handling
+
+### Phase 3: Advanced Features & Discord Integration
+**Goal**: Community integration, advanced search, and production polish
+
+**Discord Integration**:
+- [ ] Discord bot development and integration
+- [ ] Content submission notifications to Discord
+- [ ] Single moderator approval system via Discord
+- [ ] Role management system (app-controlled Discord role assignment)
+- [ ] Deployment notifications (dev/prod channels)
+- [ ] System monitoring and alerting via Discord
+
+**Advanced Search & Discovery**:
+- [ ] Fish Finder advanced filtering tool (Beginner/Expert modes)
+- [ ] Enhanced search performance and caching
+- [ ] Taxonomic landing pages (Family/Genus overview pages)
+- [ ] Search result optimization and relevance tuning
+
+**Production Features**:
+- [ ] Historical name redirects and taxonomic reclassification support
+- [ ] Complete SEO optimization and redirect management
+- [ ] Performance optimization and advanced caching strategies
+- [ ] Background job processing for image resizing and VirusTotal scanning
+- [ ] Google Analytics integration
+- [ ] Production monitoring and error handling
+
+### Phase 4: Enhancement & Scaling
+**Goal**: Advanced features, optimizations, and future-proofing
+
+**Advanced Features**:
+- [ ] Algolia search integration (if PostgreSQL search insufficient)
+- [ ] Advanced image management and processing features
+- [ ] PWA features for mobile optimization
+- [ ] Advanced Discord features (search commands, etc.)
+
+**Analytics & Optimization**:
+- [ ] Analytics and monitoring dashboard
+- [ ] Performance optimization and Core Web Vitals compliance
+- [ ] Advanced caching strategies and edge optimization
 - [ ] API for external integrations
 
-## Technical Considerations
-
-### Performance Requirements
-- **Global accessibility**: Sub-3-second load times worldwide
-- **Image optimization**: Progressive loading and format selection
-- **Search responsiveness**: <500ms search result delivery
-- **Caching strategy**: Aggressive caching for read-heavy usage patterns
-
-### Security Requirements
-- **Content integrity**: Protection against malicious submissions
-- **User data protection**: GDPR-compliant user management
-- **Role-based access**: Secure permission boundaries
-- **Input validation**: XSS and injection prevention
-
-### Scalability Planning
-- **Database optimization**: Indexed queries for large datasets
-- **CDN utilization**: Global content delivery
-- **Worker scaling**: Automatic scaling for traffic spikes
-- **Monitoring**: Performance and error tracking
+**Future Enhancements**:
+- [ ] Multilingual content support activation
+- [ ] Advanced taxonomic features
+- [ ] Community contribution enhancements
+- [ ] Mobile app considerations
 
 ## Success Metrics
 
@@ -382,10 +620,10 @@
 - User contribution engagement
 
 ### Technical Performance
-- Page load speeds
-- Search result relevance
+- Page load speeds (<3s globally)
+- Search result relevance and speed (<200ms)
 - Image delivery performance
-- Uptime and reliability
+- Uptime and reliability (99.9%+)
 
 ### Community Engagement
 - Discord server activity
@@ -393,8 +631,14 @@
 - User registration and verification
 - SEO ranking maintenance
 
+### Scalability Planning
+- **Database optimization**: Indexed queries for large datasets
+- **CDN utilization**: Global content delivery
+- **Worker scaling**: Automatic scaling for traffic spikes
+- **Monitoring**: Performance and error tracking
+
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 2.0  
 **Last Updated**: 2025-01-24  
 **Next Review**: Upon Phase 1 completion

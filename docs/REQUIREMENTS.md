@@ -18,12 +18,54 @@
 - **Image Storage**: Cloudflare R2
 - **Search**: Advanced search implementation (possibly Algolia if native search insufficient)
 
+### Development Environment
+- **Local setup**: React Router local build with Supabase Docker containers
+- **Reference architecture**: Based on tt-reviews repository patterns
+- **Database**: Local PostgreSQL via Docker for development/testing
+- **Authentication**: Local Supabase auth simulation
+
+### Deployment Pipeline
+- **CI/CD**: GitHub Actions (following tt-reviews patterns)
+- **Environments**: 
+  - Development (auto-deploy from main branch)
+  - Production (manual approval required)
+- **Community integration**: Webhook notifications to Discord channels
+- **Notifications**:
+  - Development deployments → Discord "deployment" channel
+  - Production releases → Discord "changelog" channel
+
+### Monitoring & Logging
+- **Primary logging**: Cloudflare logs and analytics
+- **Application logging**: Robust logging system across frontend and API components
+- **Alerting**: Discord-based alerts for errors and system issues (free solution)
+- **Performance monitoring**: Cloudflare Workers analytics and metrics
+
+### Caching Strategy
+- **Cloudflare Workers caching**: API response caching with content-type specific configurations
+  - Species profiles: 24 hour cache
+  - Article content: 12 hour cache  
+  - Search results: 1 hour cache
+  - User-specific data: No cache
+- **Database caching**: Native Supabase/PostgREST caching only
+- **Image caching**: Cloudflare R2 + CDN automatic caching
+- **Database optimization**: Read-heavy query patterns with appropriate indexing
+
+### Form Validation & Data Integrity
+- **Schema validation**: Zod for TypeScript-first validation
+- **Validation layers**: 
+  - Frontend: Real-time validation during user input
+  - Backend: Server-side validation for security
+  - Database: Schema constraints and triggers
+- **Scientific data validation**: Custom validators for taxonomic names, measurements, citations
+- **Rich text validation**: Content sanitization and citation format validation
+
 ### Architecture Benefits
 - **Type-safe full-stack development**
 - **Server-side rendering for SEO**
 - **Global edge deployment via Cloudflare**
 - **Unified deployment** (frontend, backend, API in single Worker)
 - **Modern React patterns** with proper component composition
+- **Strong local development environment** mirroring production
 
 ## Content Strategy
 
@@ -65,6 +107,83 @@
 - Category-based filtering
 - Scientific reference integration
 
+### Rich Text Editing System
+**Editor**: Tiptap (React-based, extensible rich text editor)
+
+**Input Types**:
+1. **Plain Text**: Simple text fields for structured data (genus, species names, measurements)
+   - No formatting options
+   - Automatic formatting applied (e.g., scientific names in italics)
+
+2. **Limited Rich Text**: Basic formatting for short content (captions, summaries)
+   - Bold, italic formatting only
+   - No links or complex structures
+
+3. **Full Rich Text**: Complete editing capabilities for articles and detailed content
+   - All basic formatting (bold, italic, headings, lists)
+   - External link insertion
+   - Internal SF linking (search and link to species/articles)
+   - Citation formatting and management
+   - Scientific notation support
+   - Image insertion with captions
+
+**Custom Extensions**:
+- **SF Species/Article Search**: Search and link to internal content
+- **Citation Formatter**: Scientific citation formatting and management
+- **Scientific Notation**: Automatic italicization of scientific names
+
+### Glossary Integration & Background Processing
+**Auto-Glossary Linking**: Automatic linking of glossary terms within content
+- **Database**: Glossary terms stored with aliases and case-sensitivity flags
+- **Processing**: Background job processes content to identify and link glossary terms
+- **Smart linking**: First occurrence only, context-aware, avoids over-linking
+- **Performance**: Server-side processing during content save with client-side tooltip enhancements
+
+**Background Job Processing**:
+- **Architecture**: Single Cloudflare Worker with Durable Objects for job queuing
+- **Workflow**: 
+  1. Content submitted → Saved with "processing" status
+  2. Background job queued using Durable Object alarms
+  3. Glossary terms processed and linked
+  4. Status updated to "ready for review"
+- **Notifications**: Discord alerts for processing completion and failures
+- **Throughput**: Sufficient for content submission volumes (~400 jobs/second capacity)
+
+### Content Versioning & History
+**Admin Versioning**: 
+- Keep last 2-3 versions of all content for data recovery purposes
+- Admin interface shows version history with restore capability
+- Track editor, timestamp, and change summary for each version
+
+**Public Change History**:
+- Frontend-visible timeline for significant changes (e.g., taxonomic reclassification)
+- Display when species information was updated and why
+- Historical context for scientific accuracy and transparency
+
+### Taxonomic Hierarchy & Navigation
+**Hierarchical Structure**: Class → Order → Family → Genus → Species
+- **Navigation**: Browse species by taxonomic classification
+- **Landing Pages**: Family and genus overview pages with species lists
+- **Knowledge Base**: Homepage integration serving as main navigation hub (replacing current knowledge-base page)
+- **Search Integration**: Filter by taxonomic levels
+
+### Content Moderation Workflow
+**Admin Users**:
+- **Draft** → **Live** (direct publishing capability)
+
+**Non-Admin Users**:
+- **Draft** → **Submitted** → **Processing** (glossary/validation) → **Discord Notification** → **Approved/Rejected**
+- **Rejection Handling**: Explanations visible in user profile area
+- **Re-submission**: Users can edit rejected content and re-submit
+- **Review Process**: Trusted Discord reviewers approve/reject via bot interactions
+
+### Multilingual Architecture
+**Day 1 Implementation**:
+- **Default Language**: English for all content
+- **Database Schema**: Designed to support translations (content_translations table)
+- **Future-Ready**: Architecture supports adding translated versions later
+- **No Active Translation**: Feature dormant but database-supported
+
 ### Content Quality Standards
 - **Scientific accuracy**: All information must be verifiable
 - **Citation requirements**: References must be provided for scientific claims
@@ -74,31 +193,35 @@
 ## User Roles & Authentication
 
 ### Application Roles
-1. **Administrators**
-   - Full content management access
-   - User role management
-   - Site configuration
-   - Database content organization
-
-2. **Verified Users**
-   - Submit content for review
-   - Requires email verification
-   - Can contribute species data and articles
-
-3. **Visitors**
+1. **Visitors** (Not logged in)
    - Read-only access to published content
    - Basic search functionality
+   - No account required
 
-### Discord Integration Roles
-1. **Moderators**
-   - Review and approve user submissions
-   - Content quality control
-   - Community management
+2. **Verified Users** (Email verified)
+   - Submit content for review (Draft → Submitted workflow)
+   - Edit their own submissions before/after submission
+   - Re-submit rejected content with modifications
+   - View submission status and rejection explanations in profile
 
-2. **Trusted Contributors**
-   - Fast-track content approval
-   - Advanced search access via Discord
-   - Direct content submission privileges
+3. **Moderators**
+   - All Verified User permissions
+   - Review and approve/reject user submissions
+   - Content quality control via Discord integration
+
+4. **Administrators**
+   - All Moderator permissions
+   - Direct content publishing (Draft → Live)
+   - User role management and promotion
+   - Site configuration and database management
+   - Manage all content regardless of author
+
+### Discord Integration
+**Discord Roles**: Moderator and Admin roles only
+- **Role Assignment**: App-controlled promotion system
+- **Workflow**: Admin promotes user → App requests Discord ID → Discord bot assigns role
+- **Integration**: Discord roles used for submission review and approval process
+- **Simplified Architecture**: No complex role syncing, app-driven role management
 
 ## Search Requirements
 

@@ -58,14 +58,30 @@
 
 ## Data Validation & Testing
 
-### Form Validation & Data Integrity
-- **Schema validation**: Zod for TypeScript-first validation
-- **Validation layers**: 
-  - Frontend: Real-time validation during user input
-  - Backend: Server-side validation for security
-  - Database: Schema constraints and triggers
-- **Scientific data validation**: Custom validators for taxonomic names, measurements, citations
-- **Rich text validation**: Content sanitization and citation format validation
+### Form Validation & Data Integrity (Enhanced with TT-Reviews Patterns)
+**Schema Validation Architecture**:
+- **Zod schemas**: Mirror database structure for each submission type and content entity
+- **Registry integration**: Zod schemas linked to submission registry configurations
+- **Database alignment**: Zod constraints match PostgreSQL schema (NOT NULL, CHECK constraints, VARCHAR limits)
+
+**Multi-Layer Validation**:
+- **Frontend**: Real-time validation using Zod schemas as user types
+- **Backend**: Server-side Zod validation for security (`safeParse()` with structured error handling)
+- **Database**: PostgreSQL constraints and triggers as final validation layer
+
+**Scientific Data Validation**:
+- **Custom Zod validators** for scientific accuracy:
+  - Scientific name format validation (`Genus species` pattern)
+  - Temperature/pH range validation with logical constraints
+  - Taxonomic hierarchy consistency (Family → Genus → Species relationships)
+  - Citation format validation and URL verification
+- **Cross-field validation**: Temperature ranges, compatibility rules, measurement consistency
+- **Rich error messages**: Field-specific error messages with scientific context
+
+**Field Configuration Integration**:
+- **Enhanced FormField interface**: Zod schema integration with existing validation patterns
+- **Dynamic validation**: Conditional validation based on field dependencies
+- **Error handling**: Structured field-level error responses from Zod validation failures
 
 ### Testing Strategy
 **Minimal Smoke Testing**: Fail-fast approach focused on preventing site crashes
@@ -88,18 +104,38 @@
 
 ## Monitoring & Operations
 
-### Monitoring & Logging
-- **Primary logging**: Cloudflare logs and analytics
-- **Application logging**: Robust logging system across frontend and API components
-- **Alerting**: Discord-based alerts for errors and system issues (free solution)
-- **Performance monitoring**: Cloudflare Workers analytics and metrics
+### Request Correlation & Logging (TT-Reviews Pattern)
+**Correlation System**:
+- **Request correlation middleware**: `withLoaderCorrelation` for tracking requests across operations
+- **Unique request IDs**: Generated for each request and propagated through all operations
+- **Database operation tracking**: All database queries tagged with correlation context
+- **User action logging**: Track popular species views, search patterns, submission behavior
 
-### Configuration Management
+**Structured Logging**:
+- **Logger service**: Centralized logging with correlation context
+- **Log levels**: Debug, info, warn, error with appropriate filtering
+- **Performance monitoring**: Database operation timing and caching effectiveness
+- **Error tracking**: Comprehensive error logging with request context
+
+### Monitoring & Alerting
+- **Primary logging**: Cloudflare logs and analytics
+- **Application logging**: Robust correlation-aware logging system across frontend and API components
+- **Discord-based alerting**: Free solution for errors, system issues, and performance degradation
+- **Performance monitoring**: Cloudflare Workers analytics with custom metrics
+
+### Configuration Management (TT-Reviews Patterns)
+**Environment Access**:
+- **Cloudflare context**: `context.cloudflare.env` for environment variable access
+- **Supabase client factory**: Regular vs admin client creation patterns
 - **Environment Variables**: Following tt-reviews patterns:
   - Development: `.dev.vars` file (not committed)
   - Configuration: `wrangler.toml` file (committed)
   - Production: `npx wrangler secret put` command for sensitive data
+
+**Configuration Services**:
 - **Site Settings**: Admin-configurable site-wide settings
+- **Runtime configuration**: Dynamic settings loaded via database
+- **Schema service**: Structured data generation for SEO
 
 ### Error Handling & User Experience
 - **Consistent Messaging**: Uniform error and success notifications across site (modal or styled components)
@@ -117,6 +153,20 @@
 # PART II: CONTENT & USER MANAGEMENT
 
 ## Content Strategy
+
+### Database Service Architecture (TT-Reviews Pattern)
+**Centralized Database Service**:
+- **DatabaseService class**: Organized methods by entity type (species, articles, users, submissions)
+- **Supabase client management**: Regular and admin client factory functions
+- **Request correlation**: All database operations tagged with correlation context
+- **Performance monitoring**: Database operation timing and logging
+- **Consistent error handling**: Standardized error patterns (`.catch(() => [])` vs thrown errors)
+
+**Service Structure**:
+- **Type-safe interfaces**: Strong TypeScript interfaces for all entities
+- **Method organization**: Grouped by functionality (search, CRUD, aggregation, user-specific)
+- **Fallback strategies**: Graceful degradation when optional features fail
+- **Caching integration**: Database-level caching with performance monitoring
 
 ### Primary Content Types
 
@@ -181,7 +231,27 @@
 - **Citation Formatter**: Scientific citation formatting and management
 - **Scientific Notation**: Automatic italicization of scientific names
 
-### Content Workflow & Management
+### Content Submission System (TT-Reviews Registry Pattern)
+
+#### Submission Registry Architecture
+**Config-Driven Form Generation**:
+- **Unified submission system**: Single route handles multiple content types (`submissions.$type.submit`)
+- **Submission registry**: Centralized configuration for all content types (species, articles, images, etc.)
+- **Field factories**: DRY form field creation with scientific field patterns
+- **Dynamic dependencies**: Taxonomic hierarchy dropdowns (Family → Genus → Species)
+- **Pre-selection support**: URL-based context for submissions (e.g., "add image to Betta splendens")
+
+**Security Integration**:
+- **Rate limiting**: Form submission rate limits per user/IP
+- **CSRF protection**: Token-based protection for all state-changing operations
+- **Authentication gates**: Verified user requirement for submissions
+- **Input sanitization**: XSS prevention and content validation
+
+**Processing Workflow**:
+- **Zod validation**: Schema validation before database insertion
+- **Admin client usage**: Privileged database operations for submissions
+- **Discord notifications**: Non-blocking, type-specific Discord alerts
+- **Background processing**: Glossary linking and content processing
 
 #### Content States & Workflow
 **Admin Users**:
@@ -460,11 +530,22 @@
 
 ## SEO & Migration Strategy
 
-### SEO Implementation
+### SEO Implementation (TT-Reviews Patterns)
+**Schema Service Architecture**:
+- **Centralized schema service**: Generate structured data for different entity types
+- **Performance optimization**: Schema generation in route loaders for SSR
+- **Multiple schemas per page**: Breadcrumb + entity-specific schemas
+
+**Enhanced Meta Generation**:
+- **Scientific SEO patterns**: Species names, care requirements, habitats in meta descriptions
+- **Performance-based titles**: Include review counts, usage statistics, care difficulty
+- **Keyword optimization**: Scientific names, common names, care terms, equipment compatibility
+
 **Structured Data/Schema Markup**:
-- **Species profiles**: Animal schema with scientific names, habitat, conservation status
-- **Articles**: Article schema with author, publication date, citations
-- **Rich snippets**: Enhanced Google search result display
+- **Species profiles**: Animal schema with scientific names, habitat, conservation status, care requirements
+- **Articles**: Article schema with author, publication date, citations, scientific accuracy
+- **Taxonomic navigation**: Breadcrumb schema for Family → Genus → Species hierarchy
+- **Rich snippets**: Enhanced Google search result display with species care info
 
 **URL Structure & Redirects**:
 - **Current structure maintained**: `/species/[scientific-name]`, `/articles/[slug]`
@@ -513,12 +594,20 @@
 ### Phase 1: Core Foundation (MVP)
 **Goal**: Basic functional website with content browsing and user management
 
-**Database & Authentication**:
-- [ ] PostgreSQL schema design with multilingual support
+**Technical Architecture & Database**:
+- [ ] PostgreSQL schema design with multilingual support following TT-Reviews patterns
 - [ ] MySQL to PostgreSQL migration scripts and data validation
+- [ ] DatabaseService class implementation with request correlation
+- [ ] Supabase client factory (regular + admin clients)
+- [ ] Request correlation middleware (`withLoaderCorrelation`)
+- [ ] Structured logging service with correlation context
+
+**Authentication & Security**:
 - [ ] User authentication system (Supabase Auth)
 - [ ] User role system (Visitor, Verified, Moderator, Admin)
-- [ ] Basic security measures and session management
+- [ ] Rate limiting implementation for all endpoints
+- [ ] CSRF protection for state-changing operations
+- [ ] Security headers and secure response patterns
 
 **Content Display & Navigation**:
 - [ ] Species profile display with taxonomic hierarchy
@@ -529,10 +618,11 @@
 
 **Essential Features**:
 - [ ] Real-time search bar with categorized dropdown results
-- [ ] Basic form validation system (Zod schemas)
+- [ ] Zod schema validation system matching database structure
 - [ ] Image upload, storage (R2), and display with required metadata
 - [ ] Basic rich text editing (Tiptap) with three input types
-- [ ] Basic SEO implementation (meta tags, structured data)
+- [ ] Schema service for structured data generation (Animal schema, breadcrumbs)
+- [ ] Enhanced SEO meta generation with scientific content
 
 **Testing & Deployment**:
 - [ ] Minimal smoke testing setup (Vitest)
@@ -542,11 +632,19 @@
 ### Phase 2: Content Management & Workflow
 **Goal**: Complete content creation, editing, and moderation workflow
 
+**Submission Registry System**:
+- [ ] Unified submission system (`submissions.$type.submit` route)
+- [ ] Submission registry with config-driven form generation
+- [ ] Field factories for scientific data (temperature ranges, taxonomic selectors)
+- [ ] Dynamic field dependencies (Family → Genus → Species dropdowns)
+- [ ] Pre-selection support for contextual submissions
+- [ ] Enhanced Zod validation with cross-field rules
+
 **Content Management**:
 - [ ] Admin interface for comprehensive content management
 - [ ] Content submission workflow (Draft → Submitted → Processing → Review)
 - [ ] Content versioning system (admin versions + public change history)
-- [ ] Required field validation for species profiles
+- [ ] Required field validation for species profiles with scientific constraints
 - [ ] Content archiving system with frontend display
 - [ ] Article-based content types with full rich text editing
 

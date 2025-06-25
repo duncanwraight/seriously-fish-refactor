@@ -1,0 +1,7 @@
+section	role	user_count
+USER ROLES	subscriber	52008
+USER ROLES	bbp_participant	4
+USER ROLES	bbp_keymaster	1
+USER ROLES	administrator	1
+USER ROLES	SPF Manage Options	1
+USER ROLES	contributor	1

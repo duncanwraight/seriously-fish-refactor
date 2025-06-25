@@ -2,10 +2,12 @@
 
 ## Project Overview
 
-**Objective**: Modernize the Seriously Fish website by migrating from WordPress to a React Router v7 + Supabase architecture, focusing on high-quality scientific content, powerful search capabilities, and Discord community integration.
+**Objective**: Modernize the Seriously Fish website by migrating from WordPress to a React Router v7 + Supabase architecture, expanding from tropical freshwater fish to comprehensive aquatic life coverage including marine fish, aquatic plants, and freshwater invertebrates, while maintaining scientific accuracy and powerful discovery capabilities.
 
 **Current Site**: https://www.seriouslyfish.com  
-**Primary Value**: Comprehensive, scientifically-accurate species profiles for aquarium fish  
+**Primary Value**: Comprehensive, scientifically-accurate profiles for aquatic organisms  
+**Current Focus**: Tropical freshwater fish (1,809 species)  
+**Expansion Scope**: Marine fish, aquatic plants, freshwater invertebrates  
 **Key Example**: https://www.seriouslyfish.com/species/gymnochanda-verae
 
 ---
@@ -42,18 +44,22 @@
 
 ### Caching Strategy
 - **Cloudflare Workers caching**: API response caching with content-type specific configurations
-  - Species profiles: 24 hour cache
+  - Organism profiles: 24 hour cache (fish, plants, invertebrates)
   - Article content: 12 hour cache  
-  - Search results: 1 hour cache
+  - Search results: 1 hour cache (includes content-type filtering)
+  - Geographic data: 6 hour cache (countries, continents, organism counts)
+  - Heat map data: 1 hour cache (frequently accessed, lightweight)
+  - Country/continent pages: 2 hour cache (all organism types)
   - User-specific data: No cache
 - **Database caching**: Native Supabase/PostgREST caching only
 - **Image caching**: Cloudflare R2 + CDN automatic caching
-- **Database optimization**: Read-heavy query patterns with appropriate indexing
+- **Database optimization**: Read-heavy query patterns with appropriate indexing for geographic queries
 
 ### Performance Requirements
 - **Global accessibility**: Sub-3-second load times worldwide
 - **Image optimization**: Progressive loading and format selection
-- **Search responsiveness**: <200ms response time for real-time UX
+- **Search responsiveness**: <200ms response time for real-time UX including geographic results
+- **Geographic features**: Heat map renders <500ms, country pages <2s load time
 - **Core Web Vitals**: <2.5s LCP, <100ms FID, <0.1 CLS targets
 
 ## Data Validation & Testing
@@ -170,41 +176,39 @@
 
 ### Primary Content Types
 
-#### 1. Species Profiles (Core Content)
-**Current Structure Analysis**:
+#### 1. Species Profiles (Expanded Content Coverage)
+**Multi-Organism Support**:
+- **Fish Species**: Current focus (1,809 tropical freshwater + marine expansion)
+- **Aquatic Plants**: Comprehensive plant profiles with care requirements
+- **Freshwater Invertebrates**: Shrimp, snails, crabs, crayfish profiles
+- **Unified URL Structure**: All organisms under `/species/[genus-species]` for SEO preservation
+
+**Universal Profile Fields**:
 - Scientific name and etymology
-- Classification and distribution
-- Habitat requirements
-- Physical characteristics (max length, etc.)
-- Aquarium care instructions
-- Water conditions (temperature, pH ranges)
-- Diet and feeding requirements
+- Classification and distribution  
+- Habitat requirements (freshwater/marine/brackish/terrestrial)
+- Physical characteristics (size, appearance, growth rate)
+- Care instructions (aquarium/tank setup)
+- Water conditions (temperature, pH, salinity where applicable)
+- Diet and feeding/fertilization requirements
 - Behavior and compatibility
-- Sexual dimorphism
-- Reproduction information
+- Reproduction/propagation information
 - Scientific references
 
+**Content-Type Specific Fields**:
+- **Fish**: Water parameters, behavior, breeding, tank mates
+- **Marine Fish**: Salinity/specific gravity, reef compatibility, marine-specific care
+- **Plants**: Light requirements, CO2 needs, fertilization, placement, propagation
+- **Invertebrates**: Molting, calcium requirements, social behavior, breeding difficulty
+
 **Requirements**:
-- Maintain all existing data fields
-- Enhance with structured data for better SEO
-- Support multiple high-quality images with captions
+- Maintain all existing fish data fields
+- Add content-type discrimination with appropriate field sets
+- Support habitat-type expansion (marine, brackish additions)
+- Enhance with structured data for better SEO across all organism types
+- Support multiple high-quality images with captions for all content types
 - Enable scientific reference linking and citation formatting
-- Allow for community contributions (verified users only)
-
-#### 2. Article-Based Content
-**Content Categories**:
-- Publications
-- Blogs
-- Articles
-- Conservation reports
-
-**Shared Features**:
-- Rich text editor with citation support
-- Image galleries with captions
-- Author attribution
-- Publication dates
-- Category-based filtering
-- Scientific reference integration
+- Allow for community contributions across all content types (verified users only)
 
 ### Rich Text Editing System
 **Editor**: Tiptap (React-based, extensible rich text editor)
@@ -235,11 +239,18 @@
 
 #### Submission Registry Architecture
 **Config-Driven Form Generation**:
-- **Unified submission system**: Single route handles multiple content types (`submissions.$type.submit`)
-- **Submission registry**: Centralized configuration for all content types (species, articles, images, etc.)
+- **Content-Type Specific Routes**: Separate optimized forms for each content type
+  - `/submissions/fish/submit` - Tropical freshwater fish submissions
+  - `/submissions/marine-fish/submit` - Marine fish with salinity parameters
+  - `/submissions/plant/submit` - Aquatic plant submissions with lighting/CO2 fields
+  - `/submissions/invertebrate/submit` - Invertebrate submissions with molting/calcium needs
+  - `/submissions/article/submit` - Article submissions
+  - `/submissions/image/submit` - Image submissions for existing content
+- **Submission registry**: Centralized configuration for all content types with type-specific field sets
 - **Field factories**: DRY form field creation with scientific field patterns
 - **Dynamic dependencies**: Taxonomic hierarchy dropdowns (Family → Genus → Species)
 - **Pre-selection support**: URL-based context for submissions (e.g., "add image to Betta splendens")
+- **Content-Type Validation**: Form fields and validation rules adapt based on content type and habitat type
 
 **Security Integration**:
 - **Rate limiting**: Form submission rate limits per user/IP
@@ -391,42 +402,118 @@
 ## Search & Discovery
 
 ### 1. Search Bar (Primary Search)
-**Purpose**: Real-time fish name search with categorized results
+**Purpose**: Real-time search with integrated geographic discovery
 
 **Functionality**:
-- **Target**: Fish names (scientific names, common names, family, genus, species)
+- **Target**: Organism names (fish, plants, invertebrates), scientific names, common names, geographic locations
 - **Real-time**: Results appear after ~0.5 second delay as user types
 - **Dropdown Results**: Categorized display with headings:
-  - "Species Profiles" - Top N matching species
+  - "Fish Species" - Fish profiles with habitat indicators (🌊 marine, 🏞️ freshwater)
+  - "Plants" - Aquatic plant profiles with care level indicators
+  - "Invertebrates" - Shrimp, snail, and other invertebrate profiles
+  - "Geographic" - Countries and continents with species counts
   - "Articles" - Content mentioning search terms
   - "Glossary" - Relevant glossary definitions
 - **Shareable Results**: Enter key navigates to `/search/[query]` for linkable results
 
+**Geographic Search Integration**:
+- **Countries**: Search "brazil" shows "🌍 Brazil (1,247 species)"
+- **Continents**: Search "south america" shows "🌎 South America (2,847 species)"
+- **Species by Location**: Automatically include geographic origin in species search vectors
+- **Navigation**: Geographic results link to dedicated geographic pages
+
 **Technical Implementation**:
-- **Primary**: PostgreSQL full-text search with trigram matching
-- **Caching**: Aggressive caching of popular search terms
-- **Performance**: <200ms response time for real-time UX
+- **Enhanced Search Vector**: Include country and continent names in species search index
+- **Primary**: PostgreSQL full-text search with trigram matching + geographic terms
+- **Caching**: Aggressive caching of popular search terms and geographic data
+- **Performance**: <200ms response time for real-time UX including geographic results
 
-### 2. Fish Finder (Advanced Filtering)
-**Purpose**: Find species by characteristics and care requirements
+### 2. Geographic Discovery & Heat Map
+**Purpose**: Visual exploration of fish biodiversity by geographic region
 
-**Functionality**:
-- **Filtering Options**: Habitat, water conditions, tank size, geographic region, care level
-- **User Modes**: 
-  - **Beginner Mode**: Simplified filters with guidance
-  - **Expert Mode**: Complete filtering options with scientific parameters
-- **Progressive Development**: Start simple, enhance over time
+**Interactive Heat Map**:
+- **Technology**: D3.js with SVG world map visualization
+- **Color Scheme**: Scientific blue gradient (low to high species density)
+- **Granularity**: Country-level visualization (rivers too complex for map display)
+- **Interactions**:
+  - Hover: Country name + species count tooltip
+  - Click: Navigate to country page (`/country/brazil`)
+  - Zoom: Continental focus with enhanced detail
+
+**Filter Controls**:
+- **Fish Families**: Filter by Cichlidae, Cyprinidae, etc.
+- **Care Level**: Beginner, Intermediate, Advanced species
+- **Size Categories**: Small (<5cm), Medium (5-15cm), Large (>15cm)
+- **Endemic Species**: Show countries with endemic species highlighted
+
+**Geographic Navigation Structure**:
+```
+Global Heat Map
+├── Continent Pages (/continent/south-america)
+│   ├── Continental overview and major countries
+│   ├── Regional biodiversity highlights
+│   └── Conservation status summary
+├── Country Pages (/country/brazil)
+│   ├── Species count and family breakdown
+│   ├── Major river systems (text-based, not mapped)
+│   ├── Endemic species list
+│   └── Filterable species browser
+└── Species Lists with Geographic Context
+    ├── Sort by endemic status, family, size
+    ├── Filter by care requirements
+    └── Geographic origin clearly displayed
+```
+
+**Mobile Heat Map**:
+- **Touch-friendly**: Larger country hit areas for mobile interaction
+- **Simplified**: Same country-level data, optimized for small screens
+- **Progressive Enhancement**: Works on all devices with consistent UX
+
+### 3. Advanced Filtering System
+**Purpose**: Find organisms by characteristics, care requirements, and habitat preferences
+
+**Multi-Content Type Filtering**:
+- **Content Type Selection**: Fish, Plants, Invertebrates with type-specific filter sets
+- **Habitat Type Filtering**: Freshwater, Marine, Brackish, Terrestrial
+- **Geographic Filtering**: Filter by continent, country, or endemic status
+- **Environment Filtering**: River systems, reef environments, lake species, planted tanks
+
+**Content-Specific Filter Categories**:
+- **Fish & Invertebrates**: Temperature, pH, hardness, salinity ranges, social behavior
+- **Aquatic Plants**: Light requirements, CO2 needs, fertilization level, placement zones
+- **Marine Organisms**: Reef compatibility, specific gravity requirements, coral-safe ratings
+- **Universal**: Tank size, difficulty level, geographic origin, care requirements
+
+**User Experience Modes**:
+- **Beginner Mode**: Simplified filters with care level guidance and recommended parameters
+- **Expert Mode**: Complete scientific parameters with precise ranges and advanced options
+- **Progressive Enhancement**: Filters expand based on selected content types and user experience
 
 **Implementation**:
-- **Database**: Indexed species characteristics for fast filtering
-- **UI**: Filter-based interface with progressive disclosure
-- **Results**: Species list with key characteristics displayed
+- **Database**: Multi-dimensional indexing on content type, habitat, and care characteristics
+- **UI**: Progressive disclosure with contextual filter groups
+- **Results**: Unified species list with content type indicators and key care highlights
+
+### 4. Endemic Species Discovery
+**Purpose**: Highlight unique species found only in specific regions
+
+**Features**:
+- **Species Profile Badge**: Endemic species clearly marked with special icon
+- **Endemic Status Field**: Simple boolean field on species (`is_endemic`)
+- **User Submission**: Content creators can mark species as endemic during submission
+- **Geographic Pages**: Endemic species prominently featured on country/continent pages
+- **Conservation Context**: Endemic species often have higher conservation importance
 
 ### Technical Architecture
-- **Search Bar**: Real-time PostgreSQL queries with caching
-- **Fish Finder**: Structured database queries with indexed characteristics
-- **Fallback**: Algolia integration if native search proves insufficient
-- **Global Performance**: Cloudflare caching for popular searches
+- **Enhanced Search**: Geographic terms integrated into real-time search vectors
+- **Heat Map Data**: Pre-computed country-level species counts with family breakdowns
+- **Geographic API**: Optimized endpoints for map data and country/continent pages
+- **Caching Strategy**:
+  - Geographic data: 6 hours (updated when new species added)
+  - Heat map data: 1 hour (lightweight, frequently accessed)
+  - Country pages: 2 hours (moderate update frequency)
+- **Performance**: Heat map renders <500ms, geographic search <200ms
+- **Fallback**: Algolia integration if native search proves insufficient for complex geographic queries
 
 ## Image Management
 
@@ -472,7 +559,7 @@
 - **Species Profile Browsing**: Large hero images, swipeable galleries, quick facts cards
 - **Collapsible Sections**: Expandable care details, habitat information, breeding notes
 - **Navigation**: Hamburger menu design for main site navigation
-- **Search & Discovery**: Prominent search bar, simplified Fish Finder filtering
+- **Search & Discovery**: Prominent search bar, simplified organism filtering with content type selection
 - **Taxonomic Browsing**: Touch-friendly family/genus navigation
 - **User Profiles**: Mobile-optimized submission status and preference management
 
@@ -675,7 +762,7 @@
 - [ ] System monitoring and alerting via Discord
 
 **Advanced Search & Discovery**:
-- [ ] Fish Finder advanced filtering tool (Beginner/Expert modes)
+- [ ] Advanced organism filtering system (multi-content type, Beginner/Expert modes)
 - [ ] Enhanced search performance and caching
 - [ ] Taxonomic landing pages (Family/Genus overview pages)
 - [ ] Search result optimization and relevance tuning

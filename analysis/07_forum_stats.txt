@@ -1,0 +1,5 @@
+type	count
+Forums	10
+Topics	4607
+Posts	36655
+Members	30970

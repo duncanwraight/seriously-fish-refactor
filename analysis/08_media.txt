@@ -1,0 +1,10 @@
+extension	file_count
+jpg	8889
+png	57
+JPEG	12
+gif	5
+pdf	5
+	2
+com/wp-content/uploads/2012/03/Aulonocara-stuartgranti-Cobue	1
+com/wp-content/uploads/2012/03/Garra-cambodgiensis-1	1
+bmp	1

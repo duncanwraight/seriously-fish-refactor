@@ -1,5 +1,32 @@
 # Seriously Fish Refactor - Requirements Document
 
+## Index
+
+### Part I: Technical Architecture
+- [Technology Stack](#technology-stack)
+- [Performance & Caching](#performance--caching)
+- [Data Validation & Testing](#data-validation--testing)
+- [Monitoring & Operations](#monitoring--operations)
+
+### Part II: Content & User Management
+- [Content Strategy](#content-strategy)
+- [User Management & Authentication](#user-management--authentication)
+
+### Part III: Features & Functionality
+- [Search & Discovery](#search--discovery)
+- [Image Management](#image-management)
+- [Mobile-First Design Strategy](#mobile-first-design-strategy)
+
+### Part IV: Integrations & Migration
+- [Discord Community Integration](#discord-community-integration)
+- [SEO & Migration Strategy](#seo--migration-strategy)
+
+### Part V: Development Planning
+- [Development Phases](#development-phases) → See separate files in `./todo/` directory
+- [Success Metrics](#success-metrics)
+
+---
+
 ## Project Overview
 
 **Objective**: Modernize the Seriously Fish website by migrating from WordPress to a React Router v7 + Supabase architecture, expanding from tropical freshwater fish to comprehensive aquatic life coverage including marine fish, aquatic plants, and freshwater invertebrates, while maintaining scientific accuracy and powerful discovery capabilities.
@@ -678,123 +705,14 @@ Global Heat Map
 
 ## Development Phases
 
-### Phase 1: Core Foundation (MVP)
-**Goal**: Basic functional website with content browsing and user management
+Development phases have been split into separate files for easier tracking and management:
 
-**Technical Architecture & Database**:
-- [ ] PostgreSQL schema design with multilingual support following TT-Reviews patterns
-- [ ] MySQL to PostgreSQL migration scripts and data validation
-- [ ] DatabaseService class implementation with request correlation
-- [ ] Supabase client factory (regular + admin clients)
-- [ ] Request correlation middleware (`withLoaderCorrelation`)
-- [ ] Structured logging service with correlation context
+- **[Phase 1: Core Foundation (MVP)](../todo/phase-1.md)** - Basic functional website with content browsing and user management
+- **[Phase 2: Content Management & Workflow](../todo/phase-2.md)** - Complete content creation, editing, and moderation workflow  
+- **[Phase 3: Advanced Features & Discord Integration](../todo/phase-3.md)** - Community integration, advanced search, and production polish
+- **[Phase 4: Enhancement & Scaling](../todo/phase-4.md)** - Advanced features, optimizations, and future-proofing
 
-**Authentication & Security**:
-- [ ] User authentication system (Supabase Auth)
-- [ ] User role system (Visitor, Verified, Moderator, Admin)
-- [ ] Rate limiting implementation for all endpoints
-- [ ] CSRF protection for state-changing operations
-- [ ] Security headers and secure response patterns
-
-**Content Display & Navigation**:
-- [ ] Species profile display with taxonomic hierarchy
-- [ ] Basic taxonomic navigation (family/genus browsing)
-- [ ] Homepage with knowledge base integration
-- [ ] Mobile-first responsive design implementation
-- [ ] Custom 404 and error pages
-
-**Essential Features**:
-- [ ] Real-time search bar with categorized dropdown results
-- [ ] Zod schema validation system matching database structure
-- [ ] Image upload, storage (R2), and display with required metadata
-- [ ] Basic rich text editing (Tiptap) with three input types
-- [ ] Schema service for structured data generation (Animal schema, breadcrumbs)
-- [ ] Enhanced SEO meta generation with scientific content
-
-**Testing & Deployment**:
-- [ ] Minimal smoke testing setup (Vitest)
-- [ ] Basic deployment pipeline (GitHub Actions)
-- [ ] Development environment configuration
-
-### Phase 2: Content Management & Workflow
-**Goal**: Complete content creation, editing, and moderation workflow
-
-**Submission Registry System**:
-- [ ] Unified submission system (`submissions.$type.submit` route)
-- [ ] Submission registry with config-driven form generation
-- [ ] Field factories for scientific data (temperature ranges, taxonomic selectors)
-- [ ] Dynamic field dependencies (Family → Genus → Species dropdowns)
-- [ ] Pre-selection support for contextual submissions
-- [ ] Enhanced Zod validation with cross-field rules
-
-**Content Management**:
-- [ ] Admin interface for comprehensive content management
-- [ ] Content submission workflow (Draft → Submitted → Processing → Review)
-- [ ] Content versioning system (admin versions + public change history)
-- [ ] Required field validation for species profiles with scientific constraints
-- [ ] Content archiving system with frontend display
-- [ ] Article-based content types with full rich text editing
-
-**Rich Text & Processing**:
-- [ ] Complete Tiptap integration with custom extensions
-- [ ] SF Species/Article search and linking extension
-- [ ] Citation formatter and scientific notation support
-- [ ] Glossary integration and auto-linking
-- [ ] Background job processing (Durable Objects) for glossary terms
-- [ ] Image galleries for species profiles
-
-**Moderation & Notifications**:
-- [ ] User profile pages with submission history and preferences
-- [ ] Email notification system for content status updates
-- [ ] In-app notification system with unread indicators
-- [ ] Community guidelines system (admin-configurable per content type)
-- [ ] Content moderation workflow with rejection handling
-
-### Phase 3: Advanced Features & Discord Integration
-**Goal**: Community integration, advanced search, and production polish
-
-**Discord Integration**:
-- [ ] Discord bot development and integration
-- [ ] Content submission notifications to Discord
-- [ ] Single moderator approval system via Discord
-- [ ] Role management system (app-controlled Discord role assignment)
-- [ ] Deployment notifications (dev/prod channels)
-- [ ] System monitoring and alerting via Discord
-
-**Advanced Search & Discovery**:
-- [ ] Advanced organism filtering system (multi-content type, Beginner/Expert modes)
-- [ ] Enhanced search performance and caching
-- [ ] Taxonomic landing pages (Family/Genus overview pages)
-- [ ] Search result optimization and relevance tuning
-
-**Production Features**:
-- [ ] Historical name redirects and taxonomic reclassification support
-- [ ] Complete SEO optimization and redirect management
-- [ ] Performance optimization and advanced caching strategies
-- [ ] Background job processing for image resizing and VirusTotal scanning
-- [ ] Google Analytics integration
-- [ ] Production monitoring and error handling
-
-### Phase 4: Enhancement & Scaling
-**Goal**: Advanced features, optimizations, and future-proofing
-
-**Advanced Features**:
-- [ ] Algolia search integration (if PostgreSQL search insufficient)
-- [ ] Advanced image management and processing features
-- [ ] PWA features for mobile optimization
-- [ ] Advanced Discord features (search commands, etc.)
-
-**Analytics & Optimization**:
-- [ ] Analytics and monitoring dashboard
-- [ ] Performance optimization and Core Web Vitals compliance
-- [ ] Advanced caching strategies and edge optimization
-- [ ] API for external integrations
-
-**Future Enhancements**:
-- [ ] Multilingual content support activation
-- [ ] Advanced taxonomic features
-- [ ] Community contribution enhancements
-- [ ] Mobile app considerations
+Each phase file contains detailed task lists with checkboxes that can be marked off as work progresses.
 
 ## Success Metrics
 

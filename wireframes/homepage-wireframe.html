@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seriously Fish - Clean Grid Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+        }
+
+        .header:hover {
+            background: rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem 0.8rem 3rem;
+            font-size: 1rem;
+            color: white;
+            width: 350px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-bar::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.4);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            color: rgba(255,255,255,0.6);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .discord-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(88, 101, 242, 0.2);
+            border: 2px solid rgba(88, 101, 242, 0.3);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .discord-link:hover {
+            background: rgba(88, 101, 242, 0.4);
+            border-color: rgba(88, 101, 242, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .discord-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .main-container {
+            height: 100vh;
+            margin-top: 100px;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: 3fr 1.5fr 1.2fr;
+            gap: 0;
+        }
+
+        .block {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+
+        .block:hover {
+            transform: scale(1.02);
+            z-index: 10;
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+
+        .block-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            transition: background 0.3s ease;
+            z-index: 1;
+        }
+
+        .block:hover .block-overlay {
+            background: rgba(0,0,0,0.2);
+        }
+
+        .block-content {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            max-width: 400px;
+        }
+
+        .block-content * {
+            position: relative;
+            z-index: 11;
+        }
+
+        .primary-block .block-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            line-height: 0.9;
+        }
+
+        .secondary-block .block-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+        }
+
+        .block-subtitle {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+            line-height: 1.4;
+        }
+
+        .primary-block .block-subtitle {
+            font-size: 1.2rem;
+        }
+
+        .block-stats {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+        }
+
+        .coming-soon-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 152, 0, 0.9);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Grid positioning - clean and simple */
+        /* Row 1: 3 primary blocks */
+        .geography-block { grid-column: 1 / 5; grid-row: 1; }
+        .fish-block { grid-column: 5 / 9; grid-row: 1; }
+        .beginner-block { grid-column: 9 / 13; grid-row: 1; }
+        
+        /* Row 2: 4 secondary blocks */
+        .plants-block { grid-column: 1 / 4; grid-row: 2; }
+        .inverts-block { grid-column: 4 / 7; grid-row: 2; }
+        .articles-block { grid-column: 7 / 10; grid-row: 2; }
+        .browse-block { grid-column: 10 / 13; grid-row: 2; }
+        
+        /* Row 3: Community full width */
+        .community-block { 
+            grid-column: 1 / -1; 
+            grid-row: 3;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .community-block .block-content {
+            max-width: 600px;
+            padding: 1rem;
+        }
+
+        .community-block .block-subtitle,
+        .community-block .block-stats {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: rgba(255,255,255,0.9) !important;
+        }
+
+        /* Background images */
+        .geography-block {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23006994" width="100%" height="100%"/><path fill="%23004d6b" d="M0,300 Q200,250 400,300 T800,280 V600 H0 Z"/><circle fill="%234FC3F7" cx="150" cy="150" r="40" opacity="0.6"/><circle fill="%2329B6F6" cx="600" cy="200" r="50" opacity="0.5"/></svg>');
+        }
+
+        .fish-block {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23004d40" width="100%" height="100%"/><ellipse fill="%2326A69A" cx="200" cy="200" rx="60" ry="25" opacity="0.7"/><ellipse fill="%2380CBC4" cx="400" cy="150" rx="50" ry="20" opacity="0.6"/><ellipse fill="%234DB6AC" cx="600" cy="250" rx="70" ry="30" opacity="0.5"/></svg>');
+        }
+
+        .beginner-block {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23E65100" width="100%" height="100%"/><circle fill="%23FF9800" cx="150" cy="200" r="30" opacity="0.8"/><circle fill="%23FFC107" cx="400" cy="150" r="25" opacity="0.7"/><circle fill="%23FFEB3B" cx="650" cy="220" r="35" opacity="0.6"/></svg>');
+        }
+
+        .plants-block {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%231B5E20" width="100%" height="100%"/><path fill="%23388E3C" d="M50,200 Q100,150 150,200 T250,180 Q300,160 350,200 V300 H50 Z"/></svg>');
+        }
+
+        .inverts-block {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%23D84315" width="100%" height="100%"/><ellipse fill="%23FF5722" cx="150" cy="100" rx="20" ry="10" opacity="0.8"/><ellipse fill="%23FF9800" cx="250" cy="150" rx="15" ry="8" opacity="0.7"/></svg>');
+        }
+
+        .articles-block {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%234A148C" width="100%" height="100%"/><rect fill="%237B1FA2" x="50" y="80" width="100" height="15" opacity="0.8"/><rect fill="%239C27B0" x="50" y="110" width="130" height="10" opacity="0.7"/></svg>');
+        }
+
+        .community-block {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%235865F2" width="100%" height="100%"/><circle fill="%237289DA" cx="150" cy="100" r="20" opacity="0.8"/><circle fill="%2399AAB5" cx="250" cy="150" r="15" opacity="0.7"/><circle fill="%23FFFFFF" cx="200" cy="200" r="12" opacity="0.6"/></svg>');
+        }
+
+        .browse-block {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%23374151" width="100%" height="100%"/><rect fill="%236B7280" x="50" y="50" width="80" height="40" opacity="0.8"/><rect fill="%239CA3AF" x="150" y="80" width="60" height="30" opacity="0.7"/><rect fill="%23D1D5DB" x="230" y="110" width="70" height="35" opacity="0.6"/></svg>');
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">SERIOUSLY FISH</div>
+        <div class="header-right">
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input 
+                    type="text" 
+                    class="search-bar" 
+                    placeholder="Search fish, plants, invertebrates, or locations..."
+                >
+            </div>
+            <a href="#discord" class="discord-link">
+                <svg class="discord-icon" viewBox="0 0 24 24">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Row 1: Primary Discovery Blocks -->
+        <a href="#geography" class="block primary-block geography-block">
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h1 class="block-title">EXPLORE BY GEOGRAPHY</h1>
+                <p class="block-subtitle">Interactive world map revealing species distribution</p>
+                <div class="block-stats">2,847 species • 89 countries</div>
+            </div>
+        </a>
+
+        <a href="#fish-finder" class="block primary-block fish-block">
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h1 class="block-title">FIND YOUR PERFECT FISH</h1>
+                <p class="block-subtitle">Advanced filtering by parameters and compatibility</p>
+                <div class="block-stats">1,809 fish profiles</div>
+            </div>
+        </a>
+
+        <a href="#beginner" class="block primary-block beginner-block">
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h1 class="block-title">BEGINNER'S CORNER</h1>
+                <p class="block-subtitle">Easy-care species and essential guides</p>
+                <div class="block-stats">347 beginner species</div>
+            </div>
+        </a>
+
+        <!-- Row 2: Secondary Content Blocks -->
+        <a href="#plants" class="block secondary-block plants-block">
+            <div class="coming-soon-badge">Coming Soon</div>
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h2 class="block-title">AQUATIC PLANTS</h2>
+                <p class="block-subtitle">Plant care guides and placement tips</p>
+            </div>
+        </a>
+
+        <a href="#invertebrates" class="block secondary-block inverts-block">
+            <div class="coming-soon-badge">Coming Soon</div>
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h2 class="block-title">INVERTEBRATES</h2>
+                <p class="block-subtitle">Shrimp, snails, and crustaceans</p>
+            </div>
+        </a>
+
+        <a href="#articles" class="block secondary-block articles-block">
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h2 class="block-title">SCIENTIFIC ARTICLES</h2>
+                <p class="block-subtitle">Research and discoveries</p>
+            </div>
+        </a>
+
+        <a href="#browse" class="block secondary-block browse-block">
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h2 class="block-title">BROWSE ALL</h2>
+                <p class="block-subtitle">Taxonomic classification browser</p>
+            </div>
+        </a>
+
+        <!-- Row 3: Community -->
+        <a href="#community" class="block secondary-block community-block">
+            <div class="block-overlay"></div>
+            <div class="block-content">
+                <h2 class="block-title">JOIN OUR COMMUNITY</h2>
+                <p class="block-subtitle">Connect with experts and enthusiasts on Discord</p>
+            </div>
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+name = "seriously-fish"
+main = "workers/app.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Development environment (dev.seriouslyfish.com)
+[env.development]
+name = "seriously-fish-dev"
+
+routes = [
+  { pattern = "dev.seriouslyfish.com", custom_domain = true }
+]
+
+[[env.development.r2_buckets]]
+binding = "IMAGES"
+bucket_name = "seriously-fish-images-dev"
+
+# Production environment (seriouslyfish.com)
+[env.production]
+name = "seriously-fish-prod"
+
+routes = [
+  { pattern = "seriouslyfish.com", custom_domain = true }
+]
+
+[[env.production.r2_buckets]]
+binding = "IMAGES"
+bucket_name = "seriously-fish-images-prod"

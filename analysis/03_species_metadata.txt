@@ -1,49 +1,0 @@
-section	field	usage_count	unique_values	sample_values
-SPECIES METADATA	attached_media	2923	2194	a:0:{}, a:10:{i:0;s:5:"10221";i:1;s:5:"10222";i:2;s:5:"10223";i:3;s:5:"10224";i:4;s:5:"10225";i:5;s:
-SPECIES METADATA	_thumbnail_id	2538	2457	10121, 10151, 10171, 10181, 10201, 10221, 10241, 10261, 10411, 10501, 10541, 10571, 10591, 10601, 10
-SPECIES METADATA	distribution	1869	1742	&nbsp;\n\n<a class="link_glossary" href="/glossary/e/endemic" rel="/glossary/e/endemic?hover=true">E
-SPECIES METADATA	max_size	1857	880	\n<strong>Male:</strong> [max_size_M]\n\n<strong>Female: </strong>[max_size_F], \n<strong>Male:? </str
-SPECIES METADATA	misc_notes	1835	1766	\n<p>This species is assigned the code A120? under the DATZ 'A-number' system, with a similar-looking
-SPECIES METADATA	genus	1821	606	'<em>Barbus</em>', '<em>Geophagus</em>', '<em>Inlecypris</em>', '<em>Nemacheilus</em>', '<em>Puntius
-SPECIES METADATA	species	1815	1622	<em>"scalare"</em>, <em><em>boesemani</em></em>, <em>abalios</em>, <em>acaciae</em>, <em>acrensis</e
-SPECIES METADATA	family	1801	135	Acestrorhynchidae, Adrianichthyidae, Akysidae, Alestidae, Alestiidae, Ambassidae, Amiidae, Anabantid
-SPECIES METADATA	diet	1780	1111	\n<em>Aulonocara</em> spp.? are? <a class="link_glossary" href="/glossary/b/benthophagous" rel="/glos
-SPECIES METADATA	water_chemistry	1749	695	\n<p style="font-weight: normal;"></p>\n<strong style="font-weight: normal;"><strong>Temperature</str
-SPECIES METADATA	maintenance	1733	1169	&nbsp;\n\nA <a class="link_glossary" href="/glossary/b/biotope" rel="/glossary/b/biotope?hover=true"
-SPECIES METADATA	habitat	1730	1560	&nbsp;\n\n&nbsp;, &nbsp;\n\nAccording to Ng and Ng (2001) the <a class="link_glossary" href="/glossa
-SPECIES METADATA	aquarium_size	1722	859	\n<a class="link_glossary" href="http://www.seriouslyfish.com/glossary/b/base" rel="/glossary/b/base?
-SPECIES METADATA	behaviour	1692	1306	&nbsp;\n\n&nbsp;, &nbsp;\n\n<em><a class="link_species" href="/species/fundulopanchax-scheeli" rel="
-SPECIES METADATA	dimorphism	1673	1114	\n<a href="/glossary/m/mature" rel="/glossary/m/mature?hover=true">Mature</a> females should be notic
-SPECIES METADATA	_wp_old_slug	1667	1660	1008, 1009, 1010, 1011, 1012, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025
-SPECIES METADATA	reproduction	1664	1208	\n<a class="link_glossary" href="http://www.seriouslyfish.com/glossary/s/substrate" rel="/glossary/s/
-SPECIES METADATA	references	1299	1107	a:10:{i:0;a:5:{s:13:"ref_doc_title";s:106:"Relationships among characiform fishes inferred from anal
-SPECIES METADATA	_edit_lock	1298	1287	1332601363:3, 1333915554:3, 1334049552:4, 1334055291:4, 1334071074:4, 1334073540:4, 1334569333:4, 13
-SPECIES METADATA	beginner_suitability	1276	5	1, 2, 3, 4, Please select...
-SPECIES METADATA	type_of_fish	1274	7	1, 2, 3, 5, 6, 7, Please select...
-SPECIES METADATA	_revision-control	1274	2	a:1:{i:0;s:8:"defaults";}, defaults
-SPECIES METADATA	_edit_last	1273	3	1109, 3, 4
-SPECIES METADATA	year_described	1178	190	1758, 1766, 1769, 1776, 1790, 1792, 1794, 1795, 1801, 1803, 1807, 1816, 1819, 1821, 1822, 1823, 1824
-SPECIES METADATA	species_author	1178	398	Agassiz, Ahl, Ak?iray, Alfred, Allen & Sarti, Allgayer, Almirón, Casciotta, Bechara & Ruíz Díaz, Ama
-SPECIES METADATA	temp_max	1105	22	104, 16, 20, 21, 22, 23, 23.5, 24, 25, 25.5, 26, 27, 27.5, 28, 29, 30, 31, 32, 33, 35, 38, 78
-SPECIES METADATA	temp_min	1105	30	0, 10, 11, 12, 14, 15, 15.5, 16, 16.5, 17, 17.5, 18, 19, 2, 20, 21, 22, 22.5, 23, 24, 25, 26, 27, 28
-SPECIES METADATA	common_names	1103	1092	'Arulius' Barb, 'Freshwater' Moray Eel, 'Kuhli' Loach, 'Pentazona' Barb, A164, A165, A167, A174, Bar
-SPECIES METADATA	pH_max	1102	21	10.0, 6.0, 6.5, 6.6, 6.8, 7, 7.0, 7.1, 7.2, 7.4, 7.5, 7.6, 7.8, 75, 8, 8.0, 8.2, 8.5, 9, 9.0, 9.1
-SPECIES METADATA	pH_min	1102	23	3.0, 3.5, 4, 4.0, 4.5, 4.7, 4.8, 5, 5.0, 5.2, 5.5, 6, 6.0, 6.2, 6.4, 6.5, 6.8, 6.9, 7.0, 7.4, 7.5, 8
-SPECIES METADATA	hardness_min	1094	14	0, 1, 10, 12, 15, 15.35, 2, 3, 4, 45, 5, 7, 8, 9
-SPECIES METADATA	hardness_max	1093	16	10, 12, 15, 18, 2, 20, 25, 26, 3, 30, 35, 4, 5, 53, 6, 8
-SPECIES METADATA	etymology	1049	1008	<em style="line-height: 1.5;"><i>Carinotetraodon</i></em>: from the Latin<em style="line-height: 1.5
-SPECIES METADATA	aquarium_L	998	19	100, 1000, 120, 150, 1500, 180, 200, 210, 240, 250, 30, 360, 40, 45, 50, 60, 75, 80, 90
-SPECIES METADATA	aquarium_D	997	9	20, 25, 30, 40, 400, 45, 60, 75, 90
-SPECIES METADATA	ref_type_desc	808	16	1, 10, 11, 12, 13, 14, 16, 18, 2, 3, 4, 5, 6, 7, 8, 9
-SPECIES METADATA	synonyms_title	661	658	 Nannostomus marginatus mortenthaleri, A164, A165, A167, A174, A188, A208, A218, A220, A221, A222, A
-SPECIES METADATA	synonyms	640	638	&nbsp;\n<div></div>, <div><em>Ophicephalus marulius</em> Hamilton, 1822; <em>Ophicephalus grandinosu
-SPECIES METADATA	parentheses	562	1	true
-SPECIES METADATA	_wpas_done_all	359	1	1
-SPECIES METADATA	_laecho_meta_show	62	1	1
-SPECIES METADATA	max_size_F	32	16	., 10, 100, 2.5, 3, 3.3, 3.7, 30, 4, 5, 5.5, 6.5, 7, 70 - 80, 75 - 90, 8
-SPECIES METADATA	max_size_M	31	16	10, 100 - 120, 150, 2.5, 3, 30, 4.2, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 90 - 100
-SPECIES METADATA	aquarium_H	31	4	30, 45, 50, 60
-SPECIES METADATA	_jetpack_dont_email_post_to_subs	6	1	1
-SPECIES METADATA	conductivity_min	5	3	10, 20, 5
-SPECIES METADATA	conductivity_max	5	5	100, 120, 15, 150, 80
-SPECIES METADATA	_wp_old_date	4	3	2020-03-26, 2021-01-07, 2021-01-09

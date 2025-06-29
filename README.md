@@ -6,14 +6,14 @@ Welcome! This repository contains the planning and development work for refactor
 
 If you're looking to understand what this project is about, here are the key documents to review:
 
-### 📚 [Requirements Document](docs/REQUIREMENTS.md)
+### 📚 [Requirements Document](discovery/REQUIREMENTS.md)
 This comprehensive document outlines the complete vision for the modernized Seriously Fish website. It covers:
 - Moving from WordPress to a modern React-based architecture
 - Giving the capability to expand beyond tropical freshwater fish to include marine fish, aquatic plants, and freshwater invertebrates
 - Creating powerful search and discovery features, including a strong focus on geographical locations
 - Building a community-driven content submission system
 
-### 🗄️ [Database Migration Requirements](docs/DATABASE_MIGRATION_REQUIREMENTS.md)
+### 🗄️ [Database Migration Requirements](discovery/DATABASE_MIGRATION_REQUIREMENTS.md)
 This document details how we'll migrate the existing WordPress/MySQL database to a modern PostgreSQL setup. It includes:
 - Analysis of the current database structure
 - Migration strategy and data preservation plans
@@ -21,7 +21,7 @@ This document details how we'll migrate the existing WordPress/MySQL database to
 
 This document also shows information about what our new application's database structure would be. You can see what type of content would be stored for all the different organisms, including content that is shared across all organisms and some content that is type-specific.
 
-### 🎨 [Homepage Design Concept](wireframes/homepage-wireframe.png)
+### 🎨 [Homepage Design Concept](discovery/wireframes/homepage-wireframe.png)
 This is a screenshot of an example wireframe concept created by AI, based on designs like the Uber website.
 
 Instead of a WordPress-style blog post, this approach suggests using the homepage as a signpost for the types of content available on the website, such as:

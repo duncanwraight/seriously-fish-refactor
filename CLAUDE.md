@@ -1,119 +1,151 @@
 # Instructions for Claude
 
-## Commands & Scripts
+## Project Commands
 
-### Development Commands (Planned - following tt-reviews patterns)
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- NOT YET IMPLEMENTED `npm run lint` - Run linting
-- NOT YET IMPLEMENTED `npm run typecheck` - Run TypeScript checks
-- NOT YET IMPLEMENTED `npm test` - Run tests
+### Development
+- `npm run dev` - Start React Router development server (local)
+- `npm run dev:wrangler` - Start Wrangler development server (Cloudflare Workers local)
+- `npm run build` - Build application for production
+- `npm run typecheck` - Generate types and run TypeScript checks
+- `npm run typegen` - Generate React Router type definitions
+- `npm run cf-typegen` - Generate Cloudflare Worker type definitions
 
-### Database Commands
-- `supabase start` - Start local Supabase
-- `supabase stop` - Stop local Supabase
+### Deployment
+- `npm run deploy` - Build and deploy to Cloudflare Workers
+- `wrangler deploy --env development` - Deploy to dev environment
+- `wrangler deploy --env production` - Deploy to production environment
+
+### Database (Supabase)
+- `supabase start` - Start local Supabase Docker containers
+- `supabase stop` - Stop local Supabase containers
 - `supabase migrations up` - Apply database migrations
 - **NEVER run `supabase db reset` without asking first**
 
-## Code Style & Conventions
+### Database (Legacy MySQL Analysis)
+- `docker-compose up` - Start legacy MySQL database for migration analysis
+- `docker exec -it seriously-fish-mysql mysql -u dev -p` - Access MySQL directly
 
-### React Router v7 Patterns
+## Project Naming Convention
 
-**Reference**: See `../tt-reviews/app/routes.ts` for file-based routing setup
-- **File-based routing**: Use dot notation for nested routes (`parent.child.tsx`)
-- **Layout components**: Shared layouts with `<Outlet />` for child routes
-- **Route naming**: `_index.tsx` for index routes, `$param.tsx` for dynamic routes
+- **Project name**: Always use "seriously-fish" (not "seriously-fish-refactor")
+- **Repository context**: This repo uses "-refactor" suffix only because original repo exists
+- **All code/configs**: Use "seriously-fish" as project name
 
-### Component Conventions
-- **Component files**: PascalCase (`UserProfile.tsx`)
-- **Component names**: PascalCase matching file names
-- **Component structure**: Break large JSX into focused, reusable components
-- **Composition**: Prefer composition over large monolithic components
-- **Directory structure**:
-  - `/app/components/ui/` - Reusable UI components
-  - `/app/components/[feature]/` - Feature-specific components
+## Environment Setup
 
-### TypeScript Standards
-- **Props interfaces**: Strong TypeScript interfaces for all component props
-- **Naming**: PascalCase for interfaces/types, camelCase for variables/functions
-- **Boolean variables**: Use `is`, `has`, `should` prefixes (`isModalOpen`, `hasError`)
-
-### Supabase Authentication
-
-**CRITICAL**: Always use **client-side only authentication** for all auth operations. Do NOT mix server-side and client-side auth in the same component.
-
-**Implementation References**:
-- **Server client setup**: `../tt-reviews/app/lib/supabase.server.ts`
-- **Auth utilities**: `../tt-reviews/app/lib/auth.server.ts`
-- **Login form example**: `../tt-reviews/app/routes/login.tsx`
-- **Protected route example**: `../tt-reviews/app/routes/profile.tsx`
-
-**Key Patterns**:
-- Use `createBrowserClient` for all client-side auth operations
-- Use regular HTML `<form>` elements (NOT React Router `<Form>`)
-- Handle form submission with `onSubmit` handlers and `FormData`
-- Use `getServerClient` only in route loaders for auth checks
-
-### Project Structure
-- **Migrations**: Store in `supabase/migrations/` with timestamp prefixes
-- **App structure**: Reference `../tt-reviews/app/` directory structure:
-  - `/components/ui/` - Reusable UI components
-  - `/components/[feature]/` - Feature-specific components  
-  - `/lib/` - Server utilities (auth, database, etc.)
-  - `/routes/` - File-based routes
-
-## Environment & Setup
+### Three-Environment Architecture
+- **Local**: Supabase Docker + `react-router dev` + `.dev.vars` file
+- **Dev**: Cloudflare Workers + hosted Supabase + `dev.seriouslyfish.com`
+- **Production**: Cloudflare Workers + hosted Supabase + `seriouslyfish.com`
 
 ### Environment Variables
+- **Local**: Copy `.dev.vars.example` to `.dev.vars`
+- **Dev/Prod**: Use `wrangler secret put` for sensitive values
+- **Config**: Non-sensitive values in `wrangler.toml`
 
-**Reference**: See `../tt-reviews/wrangler.toml` for Cloudflare Workers configuration
-- **Development**: `.dev.vars` file (not committed)
-- **Configuration**: `wrangler.toml` file (committed, non-sensitive config)
-- **Production**: `npx wrangler secret put` command for sensitive data
-- **Access**: `context.cloudflare.env` for environment variable access in routes
+## React Router v7 Patterns
 
-### Database Development
-- **Local Database**: Supabase uses Docker containers
-- **Database Queries**: Use `docker exec` for direct database access when needed
-- **Container Access**: `docker-compose exec` for database operations
+### File-Based Routing
+- Use `@react-router/fs-routes` with `flatRoutes()` for automatic route discovery
+- `_index.tsx` for index routes, `$param.tsx` for dynamic routes
+- Dot notation for nested routes (`parent.child.tsx`)
+- Layout components with `<Outlet />` for child routes
 
-### Deployment
-- **Platform**: Cloudflare Workers with React Router v7
-- **Configuration**: Reference `../tt-reviews/wrangler.toml` for setup
-- **Build**: `npm run build` creates `/build` directory
-- **Deploy**: `npx wrangler deploy` or GitHub Actions
-- **CI/CD**: GitHub Actions pipeline
-- **Environments**: Development (auto-deploy) and Production (manual approval)
+### Dependencies
+- Use latest React Router v7.5+ with `react-router` main package
+- Include `@react-router/fs-routes` for file-based routing
+- Use `@react-router/cloudflare` for Workers integration
 
-## Development Workflow & Permissions
+## TypeScript Standards
 
-### Tasks That Don't Require Permission
-- **File operations**: Reading, searching, analyzing existing files
-- **Documentation**: Updating markdown files in `docs/`, `analysis/`, `todo/`
-- **Database analysis**: Reading analysis files, examining schema
-- **Git operations**: `git add`, `git push`, `git status`, `git diff`, `git log`
-- **Package operations**: `npm install`, `npm run` commands
-- **Database reads**: SELECT queries via docker exec
-- **Supabase migrations**: `supabase migrations up` (but not `supabase db reset`)
+- **Interfaces**: PascalCase for interfaces/types, camelCase for variables/functions
+- **Props**: Strong TypeScript interfaces for all component props
+- **Booleans**: Use `is`, `has`, `should` prefixes (`isModalOpen`, `hasError`)
+- **Path mapping**: Use `~/*` imports for app directory
 
-### Tasks That Require Permission
-- **Code modifications**: Creating, editing, or deleting application code
-- **Database writes**: INSERT, UPDATE, DELETE operations
-- **Git commits**: Creating commits
-- **System configuration**: Environment setup changes
-- **Destructive database operations**: Especially `supabase db reset`
+## Component Conventions
+
+- **Files**: PascalCase (`UserProfile.tsx`)
+- **Names**: PascalCase matching file names
+- **Structure**: Break large JSX into focused, reusable components
+- **Composition**: Prefer composition over monolithic components
+
+### Directory Structure
+- `/app/components/ui/` - Reusable UI components
+- `/app/components/[feature]/` - Feature-specific components
+- `/app/lib/` - Server utilities (auth, database, etc.)
+- `/app/routes/` - File-based routes
+
+## Supabase Authentication
+
+### Server-Side Rendering
+- Use `@supabase/ssr` package for SSR compatibility
+- Use `getServerClient` only in route loaders for auth checks
+- Use `createBrowserClient` for all client-side auth operations
+
+### Auth Patterns
+- Regular HTML `<form>` elements (NOT React Router `<Form>`)
+- Handle form submission with `onSubmit` handlers and `FormData`
+- **NEVER mix server-side and client-side auth in same component**
+
+### Reference Files
+- Server setup: `../tt-reviews/app/lib/supabase.server.ts`
+- Auth utilities: `../tt-reviews/app/lib/auth.server.ts`
+- Login example: `../tt-reviews/app/routes/login.tsx`
+- Protected route: `../tt-reviews/app/routes/profile.tsx`
+
+## Build & Development Tooling
+
+### Vite Configuration
+- Use `@cloudflare/vite-plugin` for Workers integration
+- Use `vite-tsconfig-paths` for TypeScript path mapping
+- Use `reactRouter()` plugin for React Router v7
+
+### Type Generation
+- Run `npm run cf-typegen` to generate Cloudflare Worker types
+- Use `isbot` package for server rendering optimization
+- Auto-generate types with `postinstall` script
+
+## Development Workflow
+
+### Permissions Not Required
+- Reading/searching/analyzing existing files
+- Updating markdown files in `discovery/`, `docs/`, `todo/`
+- Examining schema via docker-compose MySQL container
+- Git operations: `add`, `push`, `status`, `diff`, `log`
+- Package operations: `npm install`, `npm run` commands
+- Database reads: SELECT queries via docker exec
+- Supabase migrations: `supabase migrations up` only
+
+### Permissions Required
+- Creating/editing/deleting application code
+- Database writes: INSERT, UPDATE, DELETE operations
+- Git commits
+- System configuration changes
+- Destructive database operations (especially `supabase db reset`)
 
 ### Workflow Rules
-- **Phase-based development**: Follow the 4-phase approach in `todo/` directory
-- **TODO management**: Keep TODO markdown files constantly updated and always update before git commit
-
-### Script Management
-- **Temporary scripts**: Store in `/scripts/` directory
-- **Cleanup**: Remove one-time scripts after use
-- **Analysis scripts**: Keep schema analysis scripts for reference
+- Follow 4-phase development approach in `todo/` directory
+- Keep TODO markdown files updated before git commits
+- Store temporary scripts in `/scripts/` directory
+- Clean up one-time scripts after use
 
 ## Key Project Documents
 
-- **[Requirements Document](docs/REQUIREMENTS.md)** - Comprehensive project vision and technical specifications
-- **[Database Migration Requirements](docs/DATABASE_MIGRATION_REQUIREMENTS.md)** - Migration strategy from WordPress/MySQL to PostgreSQL
-- **[Development Phases](todo/)** - Detailed phase-by-phase implementation plan
+- **Requirements**: `discovery/REQUIREMENTS.md` - Project vision and specifications
+- **Database Migration**: `discovery/DATABASE_MIGRATION_REQUIREMENTS.md` - MySQL to PostgreSQL strategy
+- **Development Phases**: `todo/` - Phase-by-phase implementation plan
+- **Design Concepts**: `discovery/design/` - Visual design ideas
+- **Wireframes**: `discovery/wireframes/` - Homepage concepts
+
+## Legacy Database Analysis
+
+### Purpose
+- `docker-compose.yml` spins up sanitized MySQL from existing seriouslyfish.com
+- Analyze existing data structure for PostgreSQL migration strategy
+- Explore schema with `docker exec` commands
+
+### Usage
+- `docker-compose up` to start MySQL container
+- Archive: `archive/db/sf-db-sanitized.sql.gz` contains sanitized dump
+- Use for migration planning only, not development database
